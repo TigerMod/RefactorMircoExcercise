@@ -1,34 +1,32 @@
+using System;
 using System.IO;
-using System.Web;
+using System.Text;
 
 namespace TDDMicroExercises.UnicodeFileToHtmlTextConverter
 {
-    public class UnicodeFileToHtmlTextConverter
+    public sealed class UnicodeFileToHtmlTextConverter : FileTextConverter
     {
         private readonly string _fullFilenameWithPath;
 
-
-        public UnicodeFileToHtmlTextConverter(string fullFilenameWithPath)
+        // For backward compatibility keep the old interface and default to html conversion
+        public UnicodeFileToHtmlTextConverter(string fullFilenameWithPath) : base(new HtmlConverter())
         {
             _fullFilenameWithPath = fullFilenameWithPath;
         }
 
         public string ConvertToHtml()
         {
-            using (TextReader unicodeFileStream = File.OpenText(_fullFilenameWithPath))
-            {
-                string html = string.Empty;
+            return ConvertFileAndReadToEnd(_fullFilenameWithPath);
+        }
 
-                string line = unicodeFileStream.ReadLine();
-                while (line != null)
-                {
-                    html += HttpUtility.HtmlEncode(line);
-                    html += "<br />";
-                    line = unicodeFileStream.ReadLine();
-                }
+        public string ConvertFileAndReadToEnd(string fullFilenameWithPath)
+        {
+            return ConvertFileAndReadToEnd(fullFilenameWithPath, Encoding.Unicode);
+        }
 
-                return html;
-            }
+        public string ConvertStreamAndReadToEnd(Stream inputStream)
+        {
+            return ConvertStreamAndReadToEnd(inputStream, Encoding.Unicode);
         }
     }
 }
